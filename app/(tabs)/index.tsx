@@ -6,47 +6,38 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  SafeAreaView,
 } from "react-native";
 import Icon from "@expo/vector-icons/Ionicons";
 import AddMovieForm from "@/components/AddMovieForm";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+interface Movie {
+  id: string;
+  name: string;
+  status: string;
+  date: Date;
+  imageUrl: string;
+}
 
 const WatchlistScreen = () => {
-  const [watchlist, setWatchlist] = useState([
-    {
-      id: "1",
-      title: "I Care A Lot",
-      status: "not watched",
-      date: new Date(),
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      id: "2",
-      title: "Titane",
-      status: "watched",
-      date: new Date(),
-      image: "https://via.placeholder.com/150",
-    },
-  ]);
+  const [watchlist, setWatchlist] = useState<Movie[]>([]);
   const [isFormVisible, setFormVisible] = useState(false);
 
-  const handleAddMovie = (movie) => {
+  const handleAddMovie = (movie: Movie) => {
     setWatchlist([
       ...watchlist,
       {
-        id: (watchlist.length + 1).toString(),
         ...movie,
-        image: "https://via.placeholder.com/150",
       },
     ]);
   };
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <Image source={{ uri: item.image }} style={styles.image} />
-      <Text style={styles.cardTitle}>{item.title}</Text>
+      <Image source={{ uri: item.imageUrl }} style={styles.image} />
+      <Text style={styles.cardTitle}>{item.name}</Text>
       <Text style={styles.cardSubtitle}>
-        {item.status} on {item.date.toDateString()}
+        watched on {item.date.toDateString()}
       </Text>
     </View>
   );
@@ -123,8 +114,8 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   image: {
-    width: "100%",
-    height: 180,
+    width: 120,
+    height: 150,
   },
   cardTitle: {
     color: "#fff",
