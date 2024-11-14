@@ -2,15 +2,18 @@ import React, { useEffect, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   View,
-  Text,
   FlatList,
   TouchableOpacity,
   Image,
-  StyleSheet,
+  Dimensions,
 } from "react-native";
 import Icon from "@expo/vector-icons/Ionicons";
 import AddMovieForm from "@/components/AddMovieForm";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ThemedView } from "@/components/ThemedView";
+import { ThemedText } from "@/components/ThemedText";
+
+const { width } = Dimensions.get("window");
 
 export interface Movie {
   id: string;
@@ -51,111 +54,114 @@ const WatchlistScreen = () => {
 
       const updatedWatchlist = [...watchlist, newMovie];
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedWatchlist));
-
-      // Refresh the watchlist
       await fetchWatchlist();
     } catch (error) {
       console.error("Error adding movie:", error);
     }
   };
-  const renderItem = ({ item }: { item: Movie }) => (
-    <View style={styles.card}>
-      <Image source={{ uri: item.imageUrl }} style={styles.image} />
-      <Text style={styles.cardTitle}>{item.name}</Text>
-      <Text style={styles.cardSubtitle}>
-        watched on {new Date(item.date).toLocaleDateString()}
-      </Text>
-    </View>
+
+  const MovieCard = ({ item }: { item: Movie }) => (
+    <TouchableOpacity
+      style={{
+        width: width / 2 - 24,
+        marginHorizontal: 8,
+        marginBottom: 16,
+      }}
+    >
+      <Image
+        source={{ uri: item.imageUrl }}
+        style={{
+          width: "100%",
+          height: 225,
+          borderRadius: 8,
+        }}
+        resizeMode="cover"
+      />
+      <ThemedText
+        style={{
+          marginTop: 8,
+          fontSize: 14,
+          fontWeight: "600",
+        }}
+        numberOfLines={2}
+      >
+        {item.name}
+      </ThemedText>
+      <ThemedText
+        style={{
+          fontSize: 12,
+          opacity: 0.7,
+          marginTop: 4,
+        }}
+      >
+        {item.status} • {new Date(item.date).toLocaleDateString()}
+      </ThemedText>
+    </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.iconButton}>
-          <Icon name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Watchlist</Text>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => setFormVisible(true)}
+    <SafeAreaView style={{ flex: 1 }}>
+      <ThemedView style={{ flex: 1 }}>
+        {/* Header */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: 16,
+          }}
         >
-          <Icon name="add" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            style={{
+              padding: 8,
+              borderRadius: 20,
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            <Icon name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
 
-      {/* Watchlist Items */}
-      <FlatList
-        data={watchlist}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        horizontal={false}
-        numColumns={2}
-        contentContainerStyle={styles.listContainer}
-      />
+          <ThemedText
+            style={{
+              fontSize: 24,
+              fontWeight: "bold",
+            }}
+          >
+            Watchlist
+          </ThemedText>
 
-      {/* Add Movie Form Modal */}
-      <AddMovieForm
-        visible={isFormVisible}
-        onClose={() => setFormVisible(false)}
-        onSubmit={handleAddMovie}
-      />
+          <TouchableOpacity
+            style={{
+              padding: 8,
+              borderRadius: 20,
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+            }}
+            onPress={() => setFormVisible(true)}
+          >
+            <Icon name="add" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Watchlist Items */}
+        <FlatList
+          data={watchlist}
+          renderItem={({ item }) => <MovieCard item={item} />}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          contentContainerStyle={{
+            padding: 8,
+          }}
+        />
+
+        {/* Add Movie Form Modal */}
+        <AddMovieForm
+          visible={isFormVisible}
+          onClose={() => setFormVisible(false)}
+          onSubmit={handleAddMovie}
+        />
+      </ThemedView>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#1c1c1c",
-    paddingHorizontal: 16,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 10,
-  },
-  iconButton: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: "#333",
-  },
-  headerTitle: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  listContainer: {
-    alignItems: "center",
-  },
-  card: {
-    backgroundColor: "#333",
-    borderRadius: 8,
-    overflow: "hidden",
-    width: 160,
-    height: 240,
-    margin: 8,
-    alignItems: "center",
-    padding: 10,
-  },
-  image: {
-    objectFit: "contain",
-    width: 150,
-    height: 150,
-  },
-  cardTitle: {
-    color: "#fff",
-    fontSize: 14,
-    paddingTop: 8,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  cardSubtitle: {
-    color: "#bbb",
-    fontSize: 12,
-    textAlign: "center",
-  },
-});
 
 export default WatchlistScreen;

@@ -1,6 +1,7 @@
 import { Button, Image, StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ThemedText } from "@/components/ThemedText";
 
 const Settings = () => {
   const [count, setCount] = useState(0);
@@ -24,7 +25,7 @@ const Settings = () => {
         onPress={() => count > 0 && setCount(count - 1)}
         title="Decrement"
       /> */}
-      <Text>{userData?.name.first}</Text>
+      <ThemedText>{userData?.name.first}</ThemedText>
       <Image
         source={{ uri: userData?.picture.large }}
         style={{ width: 100, height: 100, borderRadius: 50 }}
