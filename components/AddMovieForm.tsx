@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import type { Movie } from "@/app/(tabs)/index";
+import placeholderImage from "@/assets/images/placeholder-image.png";
 
 interface AddMovieFormProps {
   visible: boolean;
@@ -30,9 +31,6 @@ interface TMDBMovie {
 interface TMDBResponse {
   results: TMDBMovie[];
 }
-
-const TMDB_API_KEY = "03a96c70bce925ba25c9e5110048bf29";
-const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w200";
 
 const debounce = <T extends (...args: any[]) => void>(
   func: T,
@@ -60,6 +58,9 @@ const AddMovieForm: React.FC<AddMovieFormProps> = ({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [searchResults, setSearchResults] = useState<TMDBMovie[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
+
+  const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w200";
+  const TMDB_API_KEY = process.env.EXPO_PUBLIC_TMDB_API_KEY;
 
   const performSearch = async (query: string) => {
     if (query.length < 3) {
@@ -124,8 +125,9 @@ const AddMovieForm: React.FC<AddMovieFormProps> = ({
     setImageUrl(
       posterPath
         ? `${TMDB_IMAGE_BASE_URL}${posterPath}`
-        : "https://via.placeholder.com/50"
+        : Image.resolveAssetSource(placeholderImage).uri
     );
+    setStatus("watched");
 
     setShowSearchResults(false);
   };
@@ -187,11 +189,11 @@ const AddMovieForm: React.FC<AddMovieFormProps> = ({
                     }}
                   >
                     <Image
-                      source={{
-                        uri: item.poster_path
-                          ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}`
-                          : "https://via.placeholder.com/50",
-                      }}
+                      source={
+                        item.poster_path
+                          ? { uri: `${TMDB_IMAGE_BASE_URL}${item.poster_path}` }
+                          : placeholderImage
+                      }
                       style={{ width: 50, height: 75, marginRight: 10 }}
                       resizeMode="cover"
                     />

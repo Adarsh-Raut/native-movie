@@ -12,7 +12,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const TMDB_API_KEY = "03a96c70bce925ba25c9e5110048bf29";
+const TMDB_API_KEY = process.env.EXPO_TMDB_API_KEY;
 const { width } = Dimensions.get("window");
 
 interface Movie {
@@ -30,6 +30,8 @@ const Explore = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const TMDB_API_KEY = process.env.EXPO_PUBLIC_TMDB_API_KEY;
 
   useEffect(() => {
     fetchPopularMovies();

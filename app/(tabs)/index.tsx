@@ -12,6 +12,7 @@ import AddMovieForm from "@/components/AddMovieForm";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
+import MovieDetailModal from "@/components/MovieDetailModal";
 
 const { width } = Dimensions.get("window");
 
@@ -28,6 +29,7 @@ const STORAGE_KEY = "@movie_watchlist";
 const WatchlistScreen = () => {
   const [watchlist, setWatchlist] = useState<Movie[]>([]);
   const [isFormVisible, setFormVisible] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   const fetchWatchlist = useCallback(async () => {
     try {
@@ -60,6 +62,19 @@ const WatchlistScreen = () => {
     }
   };
 
+  const handleDeleteMovie = async (movieId: string) => {
+    try {
+      const updatedWatchlist = watchlist.filter(
+        (movie) => movie.id !== movieId
+      );
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedWatchlist));
+      setSelectedMovie(null);
+      await fetchWatchlist();
+    } catch (error) {
+      console.error("Error deleting movie:", error);
+    }
+  };
+
   const MovieCard = ({ item }: { item: Movie }) => (
     <TouchableOpacity
       style={{
@@ -67,6 +82,7 @@ const WatchlistScreen = () => {
         marginHorizontal: 8,
         marginBottom: 16,
       }}
+      onPress={() => setSelectedMovie(item)}
     >
       <Image
         source={{ uri: item.imageUrl }}
@@ -94,7 +110,7 @@ const WatchlistScreen = () => {
           marginTop: 4,
         }}
       >
-        {item.status} • {new Date(item.date).toLocaleDateString()}
+        {item.status} on {new Date(item.date).toLocaleDateString()}
       </ThemedText>
     </TouchableOpacity>
   );
@@ -158,6 +174,13 @@ const WatchlistScreen = () => {
           visible={isFormVisible}
           onClose={() => setFormVisible(false)}
           onSubmit={handleAddMovie}
+        />
+
+        <MovieDetailModal
+          visible={!!selectedMovie}
+          movie={selectedMovie}
+          onClose={() => setSelectedMovie(null)}
+          onDelete={handleDeleteMovie}
         />
       </ThemedView>
     </SafeAreaView>
